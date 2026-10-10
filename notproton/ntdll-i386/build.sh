@@ -1,6 +1,4 @@
 #!/bin/sh
-# Rebuilds notproton/ntdll-sikarugir11-i386.json from source: NotProton's i386 detour
-# (Maxyme/NotProton ntdll-patch) ported to Sikarugir's Wine 11 ntdll by notproton-i386.patch.
 # usage: notproton/ntdll-i386/build.sh [clean i386 ntdll.dll]
 # Needs git, python3 and the i686-w64-mingw32 toolchain (brew install mingw-w64).
 set -eu

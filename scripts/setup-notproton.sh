@@ -205,13 +205,7 @@ nt32="$W/i386-windows/ntdll.dll"
 cp -f "$nt32.notproton-orig" "$nt32"
 python3 "$REPO/notproton/apply-ntdll.py" "$REPO/notproton/ntdll-sikarugir11-i386.json" "$nt32"
 cp -f "$nt32" "$BRIDGE/wine/i386-windows/ntdll.dll"
-# Wine copies ntdll into a prefix only when it builds it, so older prefixes still hold the clean one.
-for p in "$STEAM_DIR"/steamapps/compatdata/*/pfx/drive_c/windows/syswow64/ntdll.dll; do
-  [[ -f "$p" ]] || continue
-  python3 "$REPO/notproton/apply-ntdll.py" "$REPO/notproton/ntdll-sikarugir11-i386.json" "$p" >/dev/null 2>&1 ||
-    warn "left $p alone: not Sikarugir 11's i386 ntdll"
-done
-ok "ntdll patched (runner + bridge, 64- and 32-bit, and existing 32-bit prefixes)"
+ok "ntdll patched (runner + bridge, 64- and 32-bit)"
 
 # ---- 6. Patch Steam.app ------------------------------------------------------------
 info "Injecting NotProton into Steam.app"

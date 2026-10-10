@@ -1,7 +1,3 @@
-"""Sources notproton/runner.env the way NotProton's run script does, under set -e, against a fake runner and prefix.
-
-usage: python3 -I tests/test_runner_env.py
-"""
 import pathlib
 import shutil
 import struct
@@ -29,8 +25,7 @@ def tree(root):
     return {p: (p.read_bytes(), p.stat().st_mtime_ns) for p in root.rglob('*') if p.is_file()}
 
 
-def cab(members):
-    """An uncompressed MS-CAB, one folder and one data block, which bsdtar reads like DirectX's redist cabs."""
+def uncompressed_cab(members):
     data, entries = b''.join(members.values()), b''
     for name, body in members.items():
         entries += struct.pack('<IIHHHH', len(body), data.index(body), 0, 0x5021, 0, 0x20) + name.encode() + b'\0'
@@ -53,10 +48,10 @@ class RunnerEnv(unittest.TestCase):
         (self.win / 'system32').mkdir()
         self.game = self.root / 'game'
         redist = self.game / 'redist/DirectX'
-        write(redist / 'Jun2010_d3dx9_43_x86.cab', cab({'d3dx9_43.dll': b'native x86 d3dx9'}))
-        write(redist / 'Jun2010_d3dx9_43_x64.cab', cab({'d3dx9_43.dll': b'native x64 d3dx9'}))
-        write(redist / 'Jun2010_D3DCompiler_43_x86.cab', cab({'D3DCompiler_43.dll': b'newer compiler'}))
-        write(redist / 'Jun2010_xinput_x86.cab', cab({'xinput1_3.dll': b'xinput'}))
+        write(redist / 'Jun2010_d3dx9_43_x86.cab', uncompressed_cab({'d3dx9_43.dll': b'native x86 d3dx9'}))
+        write(redist / 'Jun2010_d3dx9_43_x64.cab', uncompressed_cab({'d3dx9_43.dll': b'native x64 d3dx9'}))
+        write(redist / 'Jun2010_D3DCompiler_43_x86.cab', uncompressed_cab({'D3DCompiler_43.dll': b'newer compiler'}))
+        write(redist / 'Jun2010_xinput_x86.cab', uncompressed_cab({'xinput1_3.dll': b'xinput'}))
         self.bin = self.root / 'bin'
         write(self.bin / 'osascript', '#!/bin/sh\ncase "$1" in -l) echo "${STUB_SCALE-2}" ;; '
               '*) echo "button returned:$STUB_BUTTON" ;; esac\n').chmod(0o755)

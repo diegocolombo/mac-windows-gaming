@@ -21,7 +21,7 @@ achievements and the overlay all go through the one Mac Steam.
 | Wine 11 runner | Sikarugir engine `WS12WineSikarugir11.0_1` + Template 1.0.21 `Frameworks` (D3DMetal 4.0b2, DXMT, MoltenVK, GStreamer) | `~/Library/Application Support/notproton/runners/sikarugir-11` |
 | Runner environment | [`notproton/runner.env`](../notproton/runner.env) (mirrors Sikarugir's launcher) | `<runner>/runner.env` |
 | Steam bridge | `lsteamclient` + `steam.exe` from the NotProton v1.0.1 release; Valve's `steamclient`/`tier0`/`vstdlib` from Valve's CDN (hash-checked) | `~/Library/Application Support/notproton/bridge` |
-| ntdll detour | [`notproton/ntdll-sikarugir11.json`](../notproton/ntdll-sikarugir11.json) (64-bit) and [`ntdll-sikarugir11-i386.json`](../notproton/ntdll-sikarugir11-i386.json) (32-bit), applied by `apply-ntdll.py` | runner + bridge `ntdll.dll`, and the 32-bit `ntdll.dll` of prefixes built before the patch |
+| ntdll detour | [`notproton/ntdll-sikarugir11.json`](../notproton/ntdll-sikarugir11.json) (64-bit) and [`ntdll-sikarugir11-i386.json`](../notproton/ntdll-sikarugir11-i386.json) (32-bit), applied by `apply-ntdll.py` | runner + bridge `ntdll.dll` |
 | Compat tool | "NotProton (free, Wine 11)", default for all Windows games | `~/Library/Application Support/Steam/compatibilitytools.d/notproton` |
 
 - Every download is pinned by SHA-256.
@@ -52,7 +52,7 @@ All in `notproton-free.patch`, applied to the fork's `dylib/feats/compat_run.sh`
 
 ## DirectX redistributables
 
-Steam's DirectX install step never runs under NotProton, and Wine's own `d3dx9` cannot compile some shader effects ([WineHQ 55834](https://bugs.winehq.org/show_bug.cgi?id=55834)). Scribblenauts Unlimited needs the real DLLs.
+Steam's DirectX install step never runs under NotProton. Scribblenauts Unlimited crashes on Wine's own `d3dx9` effects and plays with the real DLLs.
 
 - On launch, `runner.env` unpacks the native `d3dx9_*` and `d3dcompiler_*` DLLs from the game's own redist `.cab` files into its prefix, and prefers them (`n,b`).
 - Only Wine's built-in copies are replaced; the originals stay beside them as `*.notproton-orig`.

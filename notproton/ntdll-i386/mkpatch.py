@@ -1,13 +1,8 @@
-"""Write the byte ranges that turn a clean ntdll.dll into a patched one, in the JSON
-format notproton/apply-ntdll.py reads.
-
-usage: mkpatch.py <clean.dll> <patched.dll> <engine> <file> <note>
-"""
 import hashlib
 import json
 import sys
 
-GAP = 16  # equal bytes between two changed runs that still join them into one range
+JOIN_WITHIN = 16
 
 
 def ranges(a, b):
@@ -16,7 +11,7 @@ def ranges(a, b):
     for i in range(len(a)):
         if a[i] == b[i]:
             continue
-        if start is not None and i - last > GAP:
+        if start is not None and i - last > JOIN_WITHIN:
             out.append((start, last + 1))
             start = None
         if start is None:
