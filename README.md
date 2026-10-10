@@ -5,10 +5,14 @@ Free Windows gaming on Apple Silicon Macs, no CrossOver. Windows games get a nor
 
 Verified on macOS 26.6.2, Apple M4 Max, October 2026 (Sikarugir Wine 11, D3DMetal 4.0b2, free NotProton fork).
 
+This is a fork of [Xipzer/mac-windows-gaming](https://github.com/Xipzer/mac-windows-gaming). It adds 32-bit games,
+Direct3D 8 and 9 through DXVK, the game's own DirectX DLLs, Retina off on a 1x screen and a low-disk warning,
+until upstream merges them.
+
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Xipzer/mac-windows-gaming/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/diegocolombo/mac-windows-gaming/main/install.sh | bash
 ```
 
 - Installs Rosetta 2, Homebrew, cmake, Steam (if missing) and Heroic.

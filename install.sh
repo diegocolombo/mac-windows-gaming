@@ -7,7 +7,7 @@
 #   3. Runs scripts/setup-notproton.sh (builds the fork, assembles the Wine 11 runner,
 #      stages the Steam bridge, patches Steam.app after backing it up).
 #
-# Run:  curl -fsSL https://raw.githubusercontent.com/Xipzer/mac-windows-gaming/main/install.sh | bash
+# Run:  curl -fsSL https://raw.githubusercontent.com/diegocolombo/mac-windows-gaming/main/install.sh | bash
 #   or: ./install.sh
 #
 # Flags:
@@ -21,7 +21,7 @@
 set -euo pipefail
 
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
-REPO_URL="https://github.com/Xipzer/mac-windows-gaming.git"
+REPO_URL="https://github.com/diegocolombo/mac-windows-gaming.git"
 
 # curl|bash has no repo next to it: clone one (setup-notproton.sh needs notproton/ assets).
 resolve_repo() {
@@ -29,7 +29,8 @@ resolve_repo() {
     REPO_DIR="$SELF_DIR"
   else
     REPO_DIR="$HOME/Library/Caches/mac-windows-gaming"
-    if [[ -d "$REPO_DIR/.git" ]]; then git -C "$REPO_DIR" pull -q --ff-only || true
+    # A clone of another remote (an earlier upstream install) would keep pulling from there.
+    if [[ "$(git -C "$REPO_DIR" remote get-url origin 2>/dev/null)" == "$REPO_URL" ]]; then git -C "$REPO_DIR" pull -q --ff-only || true
     else rm -rf "$REPO_DIR"; git clone -q --depth 1 "$REPO_URL" "$REPO_DIR"; fi
   fi
   SCRIPTS_DIR="$REPO_DIR/scripts"
@@ -96,7 +97,7 @@ Next:
 
 Check a game first:   bash "${SCRIPTS_DIR}/check-compat.sh" <steam_app_id>
 After a Steam update stops games launching:   bash "${SCRIPTS_DIR}/setup-notproton.sh" --skip-build
-Docs & troubleshooting: https://github.com/Xipzer/mac-windows-gaming
+Docs & troubleshooting: https://github.com/diegocolombo/mac-windows-gaming
 EOF
 }
 main "$@"
