@@ -50,6 +50,15 @@ All in `notproton-free.patch`, applied to the fork's `dylib/feats/compat_run.sh`
 - **Safety:** `apply-ntdll.py` refuses any `ntdll.dll` whose hash doesn't match, so it can't patch a different engine.
 - **32-bit:** Wine 11's i386 `build_module` gates on `DONT_RESOLVE_DLL_REFERENCES` (`0x1`), not the bit upstream's resolver expects, and the detour no longer fits in the `.text` padding. [`notproton/ntdll-i386/notproton-i386.patch`](../notproton/ntdll-i386/notproton-i386.patch) ports `detour32.c` and puts the payload in the `.rsrc` tail. `notproton/ntdll-i386/build.sh` rebuilds `ntdll-sikarugir11-i386.json` byte for byte (needs `brew install mingw-w64`).
 
+## DirectX redistributables
+
+Steam's DirectX install step never runs under NotProton, and Wine's own `d3dx9` cannot compile some shader effects ([WineHQ 55834](https://bugs.winehq.org/show_bug.cgi?id=55834)). Scribblenauts Unlimited needs the real DLLs.
+
+- On launch, `runner.env` unpacks the native `d3dx9_*` and `d3dcompiler_*` DLLs from the game's own redist `.cab` files into its prefix, and prefers them (`n,b`).
+- Only Wine's built-in copies are replaced; the originals stay beside them as `*.notproton-orig`.
+- It runs once per prefix and records the DLLs in `compatdata/<appid>/notproton-directx`. Delete that file to redo it.
+- The prefix has to exist first, so a game without a Steam install script gets them on its second launch.
+
 ## Per-game launch options
 
 Options go **after** `%command%`. `VAR=1 %command%` fails on macOS Steam with `OS Error 260`.
