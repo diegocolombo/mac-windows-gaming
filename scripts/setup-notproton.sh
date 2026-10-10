@@ -10,6 +10,7 @@
 #   Libraries       Sikarugir Template-1.0.21 Frameworks (D3DMetal 4.0b2, DXMT, MoltenVK, GStreamer)
 #   Steam bridge    lsteamclient + steam.exe from the NotProton v1.0.1 release, Valve DLLs from Valve's CDN
 #   ntdll patch     notproton/ntdll-sikarugir11.json (steamclient64 -> lsteamclient detour, keeps Steam DRM working)
+#                   notproton/ntdll-sikarugir11-i386.json (the same detour for 32-bit games)
 #
 # Usage:  ./setup-notproton.sh [--force] [--no-default] [--skip-build]
 #   --force       rebuild runner + source even if present
@@ -167,7 +168,7 @@ info "Staging the Steam bridge"
 fetch "$NP_ZIP_URL" "$CACHE/NotProton-v1.0.1.zip" "$NP_ZIP_SHA"
 pz="$(mktemp -d /tmp/npz.XXXXXX)"; unzip -q "$CACHE/NotProton-v1.0.1.zip" -d "$pz"
 P="$(find "$pz" -type d -path '*payload/bridge' | head -1)"; [[ -n "$P" ]] || die "bridge payload missing from NotProton.zip"
-mkdir -p "$BRIDGE"/{x86_64-windows,i386-windows,x86_64-unix,aarch64-unix,wine/x86_64-windows}
+mkdir -p "$BRIDGE"/{x86_64-windows,i386-windows,x86_64-unix,aarch64-unix,wine/x86_64-windows,wine/i386-windows}
 cp -f "$P/steam.exe" "$BRIDGE/steam.exe"
 cp -f "$P/x86_64-windows-lsteamclient.dll" "$BRIDGE/lsteamclient.dll"
 cp -f "$P/x86_64-windows-lsteamclient.dll" "$BRIDGE/x86_64-windows/lsteamclient.dll"
@@ -199,7 +200,18 @@ nt="$W/x86_64-windows/ntdll.dll"
 cp -f "$nt.notproton-orig" "$nt"
 python3 "$REPO/notproton/apply-ntdll.py" "$REPO/notproton/ntdll-sikarugir11.json" "$nt"
 cp -f "$nt" "$BRIDGE/wine/x86_64-windows/ntdll.dll"
-ok "ntdll patched (runner + bridge)"
+nt32="$W/i386-windows/ntdll.dll"
+[[ -f "$nt32.notproton-orig" ]] || cp -p "$nt32" "$nt32.notproton-orig"
+cp -f "$nt32.notproton-orig" "$nt32"
+python3 "$REPO/notproton/apply-ntdll.py" "$REPO/notproton/ntdll-sikarugir11-i386.json" "$nt32"
+cp -f "$nt32" "$BRIDGE/wine/i386-windows/ntdll.dll"
+# Wine copies ntdll into a prefix only when it builds it, so older prefixes still hold the clean one.
+for p in "$STEAM_DIR"/steamapps/compatdata/*/pfx/drive_c/windows/syswow64/ntdll.dll; do
+  [[ -f "$p" ]] || continue
+  python3 "$REPO/notproton/apply-ntdll.py" "$REPO/notproton/ntdll-sikarugir11-i386.json" "$p" >/dev/null 2>&1 ||
+    warn "left $p alone: not Sikarugir 11's i386 ntdll"
+done
+ok "ntdll patched (runner + bridge, 64- and 32-bit, and existing 32-bit prefixes)"
 
 # ---- 6. Patch Steam.app ------------------------------------------------------------
 info "Injecting NotProton into Steam.app"
